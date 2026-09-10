@@ -1,6 +1,5 @@
 from Bio import SeqIO
 import matplotlib.pyplot as plt
-
 from pathlib import Path
 
 def visualization_menu():
@@ -42,6 +41,9 @@ def analysis_menu():
 
 def calculate_gc_content(sequence):
     """Calculate the GC content of a DNA sequence."""
+    if len(sequence) == 0:
+        return 0.0
+    
     gc_count = sequence.count("G") + sequence.count("C")
     return (gc_count / len(sequence)) * 100
 
@@ -53,15 +55,6 @@ def load_genome_from_fasta(file_path):
     except Exception as e:
         print(f"Error loading genome from {file_path}: {e}")
         return None
-
-def load_all_genomes_from_fasta(file_path):
-    """Load all genome sequences from a FASTA file."""
-    try:
-        genomes = list(SeqIO.parse(file_path, "fasta"))
-        return genomes
-    except Exception as e:
-        print(f"Error loading genomes from {file_path}: {e}")
-        return []
 
 def load_genomes_from_folder(folder_path):
     """Load all genome sequences from FASTA files in a folder."""
@@ -93,11 +86,22 @@ def select_genomes(genomes):
         for choice in selection.split(","):
             choice = choice.strip()
 
-            if choice.isdigit():
-                index = int(choice) - 1
+            if not choice.isdigit():
+                selected_indices = []
+                break
 
-                if 0 <= index < len(genomes):
-                    selected_indices.append(index)
+            index = int(choice) - 1
+
+            if 0 <= index < len(genomes):
+                selected_indices.append(index)
+            else:
+                selected_indices = []
+                break
+
+        # Reject duplicate selections
+        if len(selected_indices) != len(set(selected_indices)):
+            print("Invalid selection. Do not select the same genome more than once.")
+            continue
 
         if selected_indices:
             break
@@ -110,6 +114,8 @@ def select_genomes(genomes):
 
 def calculate_at_content(sequence):
     """Calculate the AT content of a DNA sequence."""
+    if len(sequence) == 0:
+        return 0.0
     at_count = sequence.count("A") + sequence.count("T")
     return (at_count / len(sequence)) * 100
 
@@ -124,59 +130,84 @@ def calculate_base_composition(sequence):
     return base_counts
 
 def compare_genomes(genomes):
-    """Display a comparison of the selected genomes."""
+    """Compare the selected bacterial genomes."""
 
     print("\nGenome Comparison")
-    print("-" * 50)
-    print(f"{'Genome ID':<15} {'Length (bp)':<15} {'GC Content':<12}")
-    print("-" * 50)
+    print("-" * 60)
 
-    gc_contents = {}
-    genome_lengths = {}
+    genome_data = []
 
     for genome in genomes:
-        genome_id = genome.id
-        genome_length = len(genome.seq)
-        gc_content = calculate_gc_content(str(genome.seq))
+        sequence = str(genome.seq)
 
-        gc_contents[genome_id] = gc_content
-        genome_lengths[genome_id] = genome_length
+        genome_data.append({
+            "id": genome.id,
+            "length": len(sequence),
+            "gc": calculate_gc_content(sequence),
+            "at": calculate_at_content(sequence)
+        })
 
-        print(f"{genome_id:<15} {genome_length:<15} {gc_content:.2f}%")
+    print(
+        f"{'Genome ID':<20}"
+        f"{'Length (bp)':>15}"
+        f"{'GC (%)':>10}"
+        f"{'AT (%)':>10}"
+    )
 
-    highest_gc_genome = max(gc_contents, key=gc_contents.get)
-    highest_gc = gc_contents[highest_gc_genome]
+    print("-" * 60)
 
-    print(f"\nHighest GC Content: {highest_gc:.2f}% ({highest_gc_genome})")
+    for data in genome_data:
+        print(
+            f"{data['id']:<20}"
+            f"{data['length']:>15,}"
+            f"{data['gc']:>10.2f}"
+            f"{data['at']:>10.2f}"
+        )
 
-    largest_genome = max(genome_lengths, key=genome_lengths.get)
-    largest_length = genome_lengths[largest_genome]
+    highest_gc = max(genome_data, key=lambda x: x["gc"])
+    lowest_gc = min(genome_data, key=lambda x: x["gc"])
 
-    print(f"Largest Genome: {largest_length} bp ({largest_genome})")
+    largest_genome = max(genome_data, key=lambda x: x["length"])
+    smallest_genome = min(genome_data, key=lambda x: x["length"])
 
-    if len(genomes) >= 2:
-        first_genome = genomes[0]
-        second_genome = genomes[1]
+    gc_difference = highest_gc["gc"] - lowest_gc["gc"]
+    size_difference = largest_genome["length"] - smallest_genome["length"]
 
-        first_length = len(first_genome.seq)
-        second_length = len(second_genome.seq)
+    print("\nComparison Summary")
+    print("-" * 60)
 
-        first_gc = calculate_gc_content(str(first_genome.seq))
-        second_gc = calculate_gc_content(str(second_genome.seq))
+    print(
+        f"Highest GC Content: {highest_gc['id']} "
+        f"({highest_gc['gc']:.2f}%)"
+    )
 
-        size_difference = abs(first_length - second_length)
-        gc_difference = abs(first_gc - second_gc)
+    print(
+        f"Lowest GC Content: {lowest_gc['id']} "
+        f"({lowest_gc['gc']:.2f}%)"
+    )
 
-        print(f"\nGenome Size Difference: {size_difference:,} bp")
-        print(f"GC Content Difference: {gc_difference:.2f} percentage points")
+    print(
+        f"GC Content Difference: {gc_difference:.2f} percentage points"
+    )
+
+    print(
+        f"Largest Genome: {largest_genome['id']} "
+        f"({largest_genome['length']:,} bp)"
+    )
+
+    print(
+        f"Smallest Genome: {smallest_genome['id']} "
+        f"({smallest_genome['length']:,} bp)"
+    )
+
+    print(f"Genome Size Difference: {size_difference:,} bp")
 
 def count_kmers(sequence, k):
-    """Count the occurrences of k-mers in a DNA sequence."""
+    """Count k-mers in a DNA sequence."""
 
     if k <= 0 or k > len(sequence):
-        print("Invalid k value.")
         return None
-    
+
     kmer_counts = {}
 
     for i in range(len(sequence) - k + 1):
@@ -187,12 +218,20 @@ def count_kmers(sequence, k):
         else:
             kmer_counts[kmer] = 1
 
-
     return kmer_counts
 
 def most_frequent_kmers(kmer_counts, top_n=5):
-    """Return the most frequent k-mers from the k-mer counts."""
-    sorted_kmers = sorted(kmer_counts.items(), key=lambda x: x[1], reverse=True)
+    """Return the most frequent k-mers."""
+
+    if not kmer_counts:
+        return []
+
+    sorted_kmers = sorted(
+        kmer_counts.items(),
+        key=lambda item: item[1],
+        reverse=True
+    )
+
     return sorted_kmers[:top_n]
 
 def compare_kmers(genomes, k=3, top_n=5):
@@ -346,6 +385,50 @@ def interpret_gc_content(genomes):
 
         print(f"Genome ID: {genome.id} | GC Content: {gc_content:.2f}% | Interpretation: {interpretation}")
 
+def interpret_genome_size(genomes):
+    """Interpret the genome sizes of the selected genomes."""
+
+    print("\nGenome Size Interpretation")
+    print("-" * 50)
+
+    genome_lengths = {}
+
+    for genome in genomes:
+        genome_lengths[genome.id] = len(genome.seq)
+
+    largest_genome = max(genome_lengths, key=genome_lengths.get)
+    smallest_genome = min(genome_lengths, key=genome_lengths.get)
+
+    size_difference = (
+        genome_lengths[largest_genome] - genome_lengths[smallest_genome]
+    )
+
+    print(f"Genome Size Difference: {size_difference:,} bp")
+    
+    print(f"Largest Genome: {largest_genome} ({genome_lengths[largest_genome]} bp)")
+    print(f"Smallest Genome: {smallest_genome} ({genome_lengths[smallest_genome]} bp)")
+
+    print("\nBiological Interpretation:")
+
+    if size_difference < 500_000:
+        print("The selected genomes have relatively similar genome sizes.")
+    elif size_difference < 1_500_000:
+        print("The selected genomes show a moderate difference in genome size.")
+    else:
+        print("The selected genomes show a substantial difference in genome size.")
+
+    print("Genome size differences can reflect differences in genes, regulatory regions,")
+    print("mobile genetic elements, and other non-coding DNA.")
+
+    largest_length = genome_lengths[largest_genome]
+    smallest_length = genome_lengths[smallest_genome]
+
+    size_ratio = largest_length / smallest_length
+
+    print(f"{largest_genome} has approximately {size_ratio:.2f} times the genome size of {smallest_genome}.")
+    print("A larger genome does not necessarily indicate a more complex organism;")
+    print("genome size can vary due to differences in gene content and genomic elements.")
+
 def main():
     """Main function to run the bacterial genome analysis tool."""
 
@@ -394,6 +477,7 @@ def main():
 
         elif choice == 5:
             interpret_gc_content(selected_genomes)
+            interpret_genome_size(selected_genomes)
 
         elif choice == 6:
             print("Exiting...")
