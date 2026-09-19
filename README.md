@@ -1,8 +1,8 @@
 # Bacterial Genome Analysis Tool
 
-A Python-based bioinformatics tool for analyzing and comparing bacterial genomes using **Biopython**.
+A Python-based bioinformatics tool for analysing and comparing bacterial genomes using **Biopython**.
 
-The program loads bacterial genome sequences from FASTA files and provides genome statistics, comparative analysis, k-mer analysis, visualizations, and basic biological interpretation.
+The program loads bacterial genome sequences from FASTA files and performs genome statistics, comparative analysis, k-mer analysis, visualisation, and basic biological interpretation.
 
 ## Features
 
@@ -14,8 +14,8 @@ The program loads bacterial genome sequences from FASTA files and provides genom
 
 ### Genome Selection
 
-* Displays all available genomes
-* Allows the user to select multiple genomes
+* Displays available genomes
+* Allows multiple genomes to be selected for analysis
 * Validates genome selections and prevents duplicate selections
 
 ### Individual Genome Analysis
@@ -29,14 +29,12 @@ For each selected genome, the tool calculates:
 
 ### Genome Comparison
 
-Compares multiple bacterial genomes and identifies:
+Compares selected bacterial genomes and identifies:
 
-* Highest GC content
-* Lowest GC content
-* GC content difference
-* Largest genome
-* Smallest genome
-* Genome size difference
+* Highest and lowest GC content
+* GC content differences
+* Largest and smallest genomes
+* Genome size differences
 
 ### K-mer Analysis
 
@@ -62,23 +60,14 @@ Provides basic interpretations of:
 * Differences in genome size
 * Possible biological factors contributing to genome-size variation
 
-## Technologies Used
-
-* **Python**
-* **Biopython**
-* **Matplotlib**
-* **Pathlib**
-
 ## Project Structure
 
 ```text
 Bacterial-Genome-Analysis-Tool/
-│
 ├── data/
 │   ├── e_coli.fasta
 │   ├── b_subtilis.fasta
 │   └── s_aureus.fasta
-│
 ├── main.py
 ├── README.md
 └── .gitignore
@@ -94,14 +83,21 @@ The current dataset contains:
 * *Bacillus subtilis* subsp. subtilis 168
 * *Staphylococcus aureus* subsp. aureus NCTC 8325
 
-These genomes provide differences in genome size, GC content, and sequence composition that can be explored using the tool.
+These genomes provide different genome sizes, GC contents, and sequence composition for comparative analysis.
+
+## Technologies
+
+* Python
+* Biopython
+* Matplotlib
+* Pathlib
 
 ## Installation
 
 Clone the repository and navigate into the project directory:
 
 ```bash
-git clone https://github.com/simplyhamdan/Bacteria-Genome-Analysis-Tool.git
+git clone <repository-url>
 cd Bacterial-Genome-Analysis-Tool
 ```
 
@@ -119,7 +115,7 @@ Run the program with:
 python main.py
 ```
 
-The program will display the available genomes and allow you to select which genomes to analyze.
+The program displays the available genomes and allows you to select which genomes to analyse.
 
 Example:
 
@@ -150,16 +146,31 @@ For the three genomes in the dataset, the tool can identify differences such as:
 
 * *E. coli* having the largest genome
 * *S. aureus* having the smallest genome
-* Differences in GC content between the organisms
+* Differences in GC content between organisms
 * Differences in k-mer frequency patterns
 
 These comparisons demonstrate how bacterial genomes can vary in size and nucleotide composition.
+
+## What I Learned
+
+This project built on the sequence-analysis concepts from the previous projects and introduced larger-scale biological data analysis.
+
+Key concepts included:
+
+* Working with complete bacterial genome sequences
+* FASTA file parsing with Biopython
+* Genome statistics and base composition
+* Comparative genomic analysis
+* K-mer analysis
+* Biological data visualization
+* Interpreting basic genomic characteristics
+* Organizing biological data for computational analysis
 
 ## Purpose
 
 This project was developed as a practical introduction to **computational genomics and bioinformatics programming**.
 
-It demonstrates the use of Python to process biological sequence data, perform comparative genomic analysis, and generate visual representations of genomic characteristics.
+It demonstrates how Python can be used to process biological sequence data, perform comparative genomic analysis, and visualize genomic characteristics.
 
 ## Future Improvements
 
@@ -174,8 +185,13 @@ Possible future extensions include:
 * Genome similarity analysis
 * Automated report generation
 
-## Author
+## Project Series
 
-**Hamdan Sajith**
+Part of a series of progressively more advanced bioinformatics projects.
 
-Biotechnology student interested in **bioinformatics, computational biology, and genomic data analysis**.
+**Project 1:** DNA Sequencing Toolkit — Fundamental DNA sequence operations
+**Project 2:** Protein Sequence Analyzer — Protein sequence and physicochemical analysis
+**Project 3:** DNA Sequence Analyzer — Comparative DNA sequence analysis
+**Project 4:** Bacterial Genome Analysis Tool — Genome-scale sequence analysis and visualization
+
+The projects progress from individual sequence processing to comparative analysis and genome-scale biological data analysis.
